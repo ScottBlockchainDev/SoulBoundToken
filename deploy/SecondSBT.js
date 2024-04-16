@@ -1,4 +1,4 @@
-const deployArgs = require("../../constants/spheraHeadDeployArgs.json")
+const deployArgs = require("../../constants/soulBoundTokenArgs.json")
 
 module.exports = async function ({ deployments, getNamedAccounts }) {
     const { deploy } = deployments
