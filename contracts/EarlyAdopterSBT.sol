@@ -24,11 +24,13 @@ contract EarlyAdopterSBT is ERC721 {
         _;
     }
 
+    // Overriden function, Not used directly
     function _beforeTokenTransfer(address from, address to, uint tokenId, uint batchSize) internal override {
         require(from == address(0), "SoulBoundToken not transferable");
         super._beforeTokenTransfer(from, to, tokenId, batchSize);
     }
 
+    // Called from Manage Contract, not used directly
     function safeMint(address to, bytes memory signature) external onlyManager {
         permit(backend, to, signature);
         _tokenIdCounter += 1;
@@ -36,6 +38,7 @@ contract EarlyAdopterSBT is ERC721 {
         emit SafeMint(to);
     }
 
+    // Signature verification function, not used directly
     function permit(address signer, address to, bytes memory signature) internal {
         bytes32 r;
         bytes32 s;
