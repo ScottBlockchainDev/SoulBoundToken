@@ -3,6 +3,8 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+
 import "hardhat/console.sol";
 
 interface ISBT {
@@ -12,6 +14,8 @@ interface ISBT {
 }
 
 contract ManageContract is Ownable {
+    using ECDSA for bytes32;
+
     address[] sbtAddrs;
     address public backend;
     mapping(uint => mapping(address => uint)) public nonce;
@@ -56,10 +60,9 @@ contract ManageContract is Ownable {
             v := byte(0, mload(add(signature, 96)))
         }
 
-        console.log(to, contractId, nonce[contractId][to]);
-        address recoveredAddress = ecrecover(keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", keccak256(abi.encode(to, contractId, nonce[contractId][to]++)))), v, r, s);
+        bytes32 messageHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", keccak256(abi.encode(to, contractId, nonce[contractId][to]++))));
 
-        console.log(recoveredAddress, signer);
+        address recoveredAddress = ecrecover(messageHash, v, r, s);
         require(recoveredAddress != address(0) && recoveredAddress == signer, "INVALID_SIGNER");
     }
 }
