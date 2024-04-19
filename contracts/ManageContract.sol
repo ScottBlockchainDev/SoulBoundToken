@@ -1,21 +1,23 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+import "hardhat/console.sol";
+
 interface ISBT {
-    function safeMint(address to, bytes memory signature) external;
+    function safeMint(address to) external;
+
+    function balanceOf(address owner) external view returns (uint);
 }
 
-contract ManageContract {
-    address public owner;
-    mapping(uint => address) addressById;
+contract ManageContract is Ownable {
+    address[] sbtAddrs;
+    address public backend;
+    mapping(uint => mapping(address => uint)) public nonce;
 
-    constructor() {
-        owner = msg.sender;
-    }
-
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Only the owner can call this function");
-        _;
+    constructor(address _backend) Ownable() {
+        backend = _backend;
     }
 
     /*
@@ -25,18 +27,39 @@ contract ManageContract {
          2: 0x713....54 (SecondSBT)
          ... ... ...
     */
-    function registerSBTContract(uint contractId, address contractAddress) public onlyOwner {
-        addressById[contractId] = contractAddress;
+    function registerSBTContract(address contractAddress) public onlyOwner {
+        sbtAddrs.push(contractAddress);
     }
 
     // Get contract addresses from id
     function getSBTContract(uint contractId) public view returns (address) {
-        return addressById[contractId];
+        return sbtAddrs[contractId];
     }
 
     // Users call this function for minting various kinds of SBTs.
     // They should pass the signature issued from backend to the parameter
     function mint(uint contractId, bytes memory signature) public {
-        ISBT(addressById[contractId]).safeMint(msg.sender, signature);
+        require(contractId < sbtAddrs.length, "Invalid contract Id.");
+        permit(backend, contractId, msg.sender, signature);
+        ISBT(sbtAddrs[contractId]).safeMint(msg.sender);
+    }
+
+    // Signature verification function, not used directly
+    function permit(address signer, uint contractId, address to, bytes memory signature) internal {
+        bytes32 r;
+        bytes32 s;
+        uint8 v;
+
+        assembly {
+            r := mload(add(signature, 32))
+            s := mload(add(signature, 64))
+            v := byte(0, mload(add(signature, 96)))
+        }
+
+        console.log(to, contractId, nonce[contractId][to]);
+        address recoveredAddress = ecrecover(keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", keccak256(abi.encode(to, contractId, nonce[contractId][to]++)))), v, r, s);
+
+        console.log(recoveredAddress, signer);
+        require(recoveredAddress != address(0) && recoveredAddress == signer, "INVALID_SIGNER");
     }
 }
