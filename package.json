@@ -1,12 +1,12 @@
 {
-  "name": "DecaNFT",
+  "name": "souldboundtoken",
   "version": "0.0.1",
   "license": "MIT",
   "files": [
     "artifacts/",
     "contracts/"
   ],
-  "description": "Decanft",
+  "description": "SoulBoundToken",
   "main": "index.js",
   "scripts": {
     "test": "npx hardhat test",
@@ -14,8 +14,8 @@
     "lint": "yarn prettier && solhint 'contracts/*.sol' && solhint 'contracts/**/*.sol' && solhint 'contracts/**/**/*.sol' && solhint 'contracts/**/**/**/*.sol'"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.4.1",
-    "@openzeppelin/contracts-upgradeable": "^4.6.0",
+    "@openzeppelin/contracts": "^5.0.2",
+    "@openzeppelin/contracts-upgradeable": "^5.0.2",
     "@openzeppelin/hardhat-upgrades": "^1.28.0",
     "dotenv": "^10.0.0",
     "hardhat": "^2.8.0",

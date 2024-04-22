@@ -22,9 +22,13 @@ contract SoulBoundToken is ERC721 {
     }
 
     // Overriden function, Not used directly
-    function _beforeTokenTransfer(address from, address to, uint tokenId, uint batchSize) internal override {
-        require(from == address(0), "SoulBoundToken not transferable");
-        super._beforeTokenTransfer(from, to, tokenId, batchSize);
+    function _update(address to, uint tokenId, address auth) internal override(ERC721) returns (address) {
+        address from = _ownerOf(tokenId);
+        if (from != address(0) && to != address(0)) {
+            revert("Soulbound: Transfer failed");
+        }
+
+        return super._update(to, tokenId, auth);
     }
 
     function one() public view returns (address) {

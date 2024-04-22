@@ -5,8 +5,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
-import "hardhat/console.sol";
-
 interface ISBT {
     function safeMint(address to) external;
 
